@@ -1,0 +1,20 @@
+{
+  "name": "contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "hardhat clean && hardhat compile",
+    "dev": "pnpm build && hardhat node",
+    "deploy": "hardhat run scripts/*.ts",
+    "test": "hardhat test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "hardhat": "^2.13.1",
+    "ts-node": "^10.9.1"
+  }
+}
