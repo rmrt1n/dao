@@ -30,6 +30,7 @@ contract nftGovernance is ERC721,AccessControl{
     string description;
     bytes data;
     mapping(address => bool) approvals;
+    mapping(address =>bool) voters;
     }
 
 
@@ -129,6 +130,8 @@ contract nftGovernance is ERC721,AccessControl{
 
         return proposalId;
     }
+
+    //TODO functions to add: vote,getProposal(),cancle(),setVotingTreshold()/setQuorum();
 
 
 
