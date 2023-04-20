@@ -53,6 +53,7 @@ contract nftGovernance is ERC721,AccessControl{
         _tokenID = tokenID;
     }
 
+    //set Access Controll List and set the WhiteList mapping to true for each address
     //TODO add onlyOwner modifier later
    function setGovernanceACL(address _governanceContract, address[] calldata _proposers, address[] calldata _voters, address[] calldata _executors) external {
         require(_governanceContract != address(0), "NFT contract cannot be zero");
