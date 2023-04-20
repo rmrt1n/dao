@@ -8,30 +8,36 @@ contract nftGovernance is ERC721,AccessControl{
     address public governance;
     uint256 public _tokenID;
     uint256 public _minApprovals;
+    uint256 private _proposalCount;
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant VOTER_ROLE = keccak256("VOTER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
 
     mapping(address=>bool) public WhiteList;
     mapping(uint256 => Proposal) private _proposals;
+    mapping(bytes32 => bool) private _proposalExists;
 
     struct Proposal {
     bool exists;
     bool executed;
     bool canceled;
     uint256 id;
+    uint256 proposalTime;
+    uint256 approvalCount;
     address proposer;
     address target;
+    string proposalHash;
+    string description;
     bytes data;
-    uint256 proposalTime;
     mapping(address => bool) approvals;
-    uint256 approvalCount;
     }
 
 
     event ProposalApproval(uint256 indexed proposalId, address indexed approver);
     event ProposalExecutionFailure(uint256 indexed proposalId, address target, bytes data, bytes result);
     event ProposalExecution(uint256 indexed proposalId, address target, bytes data, bytes result);
+    event ProposalSubmission(uint256 indexed proposalId, address indexed proposer, address indexed target, bytes data, string description);
+
 
 
 
@@ -55,7 +61,12 @@ contract nftGovernance is ERC721,AccessControl{
 
     //set Access Controll List and set the WhiteList mapping to true for each address
     //TODO add onlyOwner modifier later
-   function setGovernanceACL(address _governanceContract, address[] calldata _proposers, address[] calldata _voters, address[] calldata _executors) external {
+   function setGovernanceACL(
+        address _governanceContract, 
+        address[] calldata _proposers, 
+        address[] calldata _voters, 
+        address[] calldata _executors
+    ) external {
         require(_governanceContract != address(0), "NFT contract cannot be zero");
         require(_proposers.length > 0, "At least one proposer is required");
         require(_voters.length > 0, "At least one voter is required");
@@ -84,6 +95,42 @@ contract nftGovernance is ERC721,AccessControl{
 
 
     }
+
+    //function to create new proposals in the governance contract.
+    function propose(
+        address target,
+        bytes memory data,
+        string memory proposalHash,
+        string memory description
+    ) external returns (uint256) {
+        require(WhiteList[msg.sender], "Sender not in whitelist");
+        require(hasRole(PROPOSER_ROLE, governance), "Does not have proposer role");
+
+        bytes32 hash = keccak256(abi.encode(target, data, proposalHash, block.number));
+        require(!_proposalExists[hash], "Identical proposal already exists");
+
+        uint256 proposalId = ++_proposalCount;
+
+        Proposal storage proposal = _proposals[proposalId];
+        proposal.id = proposalId;
+        proposal.proposer = msg.sender;
+        proposal.target = target;
+        proposal.data = data;
+        proposal.proposalHash = proposalHash;
+        proposal.description = description;
+        proposal.exists = true;
+        proposal.executed = false;
+        proposal.canceled = false;
+        proposal.approvalCount = 0;
+
+        _proposalExists[hash] = true;
+
+        emit ProposalSubmission(proposalId, msg.sender, target, data, description);
+
+        return proposalId;
+    }
+
+
 
     function approve(uint256 proposalId) external {
         require(WhiteList[msg.sender], "Sender not in whitelist");
