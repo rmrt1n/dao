@@ -135,6 +135,7 @@ contract nftGovernance is ERC721,AccessControl{
 
 
 
+    //used to approved proposals by their ID
     function approve(uint256 proposalId) external {
         require(WhiteList[msg.sender], "Sender not in whitelist");
         require(hasRole(PROPOSER_ROLE, governance), "Does not have proposer role");
@@ -150,6 +151,7 @@ contract nftGovernance is ERC721,AccessControl{
         emit ProposalApproval(proposalId, msg.sender);
     }
 
+    //usrs with executer role can execute a proposal if threshold has been meet or if it gets enough approvals
     function execute(uint256 proposalId) external {
         require(hasRole(EXECUTOR_ROLE, msg.sender), "Caller is not an executor");
 
@@ -173,7 +175,7 @@ contract nftGovernance is ERC721,AccessControl{
         }
     }
     
-
+    //assembly to check if the given address is a contract. Used assembly coz it saves some gas
     function isContract(address _addr) internal view returns (bool){
         uint256 size;
         assembly{
