@@ -38,20 +38,14 @@ contract nftGovernance is ERC721,AccessControl{
     event ProposalExecutionFailure(uint256 indexed proposalId, address target, bytes data, bytes result);
     event ProposalExecution(uint256 indexed proposalId, address target, bytes data, bytes result);
     event ProposalSubmission(uint256 indexed proposalId, address indexed proposer, address indexed target, bytes data, string description);
-
-
-
-
-
-
-
-
+    event ProposalVote(uint256 indexed proposalId,uint256 indexed tokenId, address indexed target);
 
 
     constructor(string memory name, string memory symbol) ERC721(name,symbol){}
      
     // Set the NFT that is going to be used as governance for the DAO
     //TODO Might add an only owner modifier later
+    //2 ways pre deploy the memberhip NFT then add the contract address
     function setGovernance(address nftcontract, uint256 tokenID) external{
         require(nftcontract !=address(0),"NFT contract cannot be zero");
         require(isContract(nftcontract),"Not a contract");
@@ -131,8 +125,8 @@ contract nftGovernance is ERC721,AccessControl{
         return proposalId;
     }
 
-    //TODO functions to add: vote,getProposal(),cancle(),setVotingTreshold()/setQuorum();
-
+    //TODO functions to add: ,getProposal(),cancle(),setVotingTreshold()/setQuorum();
+ 
 
 
     //used to approved proposals by their ID
@@ -174,6 +168,45 @@ contract nftGovernance is ERC721,AccessControl{
             proposal.executed = false;
         }
     }
+
+    function vote(uint256 proposalId, uint256 tokenId) external{
+        require(_proposals[proposalId].exists,"Invalid proposal ID");
+        require(!_proposals[proposalId].executed,"Proposal already executed");
+        require(!_proposals[proposalId].canceled,"Proposal already cancled");
+        require(ownerOf(tokenId) == msg.sender,"Only NFT owner can vote");
+
+        Proposal storage proposal = _proposals[proposalId];
+        require(!proposal.voters[msg.sender], "Already voted");
+
+        proposal.voters[msg.sender] = true;
+        proposal.approvalCount++;
+
+        emit ProposalVote(proposalId, tokenId, msg.sender);
+
+
+    }
+
+    //returns an array of proposal IDS that is used to retrive the poposals from strogae
+    //Did this way coz didnt want to change the voters mapping to an array
+    function getProposals() public view returns (uint256[] memory) {
+        uint256[] memory proposalIds = new uint256[](_proposalCount);
+        uint256 count = 0;
+
+        for (uint256 i = 1; i <= _proposalCount; i++) {
+            if (_proposals[i].exists) {
+                proposalIds[count] = i;
+                count++;
+            }
+        }
+
+        // Resize the array to remove unused elements
+        assembly {
+            mstore(proposalIds, count)
+        }
+
+        return proposalIds;
+    }
+
     
     //assembly to check if the given address is a contract. Used assembly coz it saves some gas
     function isContract(address _addr) internal view returns (bool){
