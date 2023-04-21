@@ -39,6 +39,7 @@ contract nftGovernance is ERC721,AccessControl{
     event ProposalExecution(uint256 indexed proposalId, address target, bytes data, bytes result);
     event ProposalSubmission(uint256 indexed proposalId, address indexed proposer, address indexed target, bytes data, string description);
     event ProposalVote(uint256 indexed proposalId,uint256 indexed tokenId, address indexed target);
+    event ProposalCancled(uint256 indexed proposalId);
 
 
     constructor(string memory name, string memory symbol) ERC721(name,symbol){}
@@ -125,7 +126,7 @@ contract nftGovernance is ERC721,AccessControl{
         return proposalId;
     }
 
-    //TODO functions to add: ,getProposal(),cancle(),setVotingTreshold()/setQuorum();
+    //TODO functions to add: ,cancle(),setVotingTreshold()/setQuorum();
  
 
 
@@ -167,6 +168,19 @@ contract nftGovernance is ERC721,AccessControl{
             emit ProposalExecutionFailure(proposalId, proposal.target, proposal.data, result);
             proposal.executed = false;
         }
+    }
+    
+    //Function to cancle the proposal by the proposer
+    function cancleProposal(uint256 proposalId) public{
+        require(_proposals[proposalId].exists,"Invalid proposal ID");
+        require(_proposals[proposalId].proposer == msg.sender,"Only the proposer can cancle");
+
+        Proposal storage proposal = _proposals[proposalId];
+        require(!proposal.executed && !proposal.canceled, "Proposal has been cancled or executed");
+
+        proposal.canceled = true;
+
+        emit ProposalCancled(proposalId);
     }
 
     function vote(uint256 proposalId, uint256 tokenId) external{
