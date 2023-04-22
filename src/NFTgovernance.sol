@@ -34,6 +34,8 @@ contract nftGovernance is ERC721,AccessControl{
     }
 
 
+
+
     event ProposalApproval(uint256 indexed proposalId, address indexed approver);
     event ProposalExecutionFailure(uint256 indexed proposalId, address target, bytes data, bytes result);
     event ProposalExecution(uint256 indexed proposalId, address target, bytes data, bytes result);
@@ -220,6 +222,35 @@ contract nftGovernance is ERC721,AccessControl{
 
         return proposalIds;
     }
+
+    //TODO add an onlyOwner or onlyAdmin modifier
+    //There is some errors here that got me scratching my head
+    function setQuorum(uint256 _proposalId, uint256 _percentage) external {
+        Proposal storage proposal = _proposals[_proposalId];
+        require(proposal.exists, "Proposal does not exist");
+
+        uint256 totalVoters = 0;
+        uint256 numApprovals = proposal.approvalCount;
+        for (uint256 i = 0; i < numApprovals; i++) {
+            address voter = proposal.approvals[i];
+            if (proposal.voters[voter]) {
+                totalVoters++;
+            }
+        }
+
+        uint256 totalSupply = 20;//IERC721(nftGovernance).totalSupply();
+        uint256 requiredVoters = (totalSupply * _percentage) / 100;
+        require(totalVoters >= requiredVoters, "Quorum not reached");
+
+        //proposal.quorum = _percentage;
+    }
+
+
+
+
+
+
+
 
     
     //assembly to check if the given address is a contract. Used assembly coz it saves some gas
