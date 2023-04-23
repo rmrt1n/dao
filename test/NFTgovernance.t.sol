@@ -47,4 +47,34 @@ contract NFTGovernanceTest is DSTest{
         assert(NFTGovernance.hasRole(VOTER_ROLE, address(this)));
         assert(NFTGovernance.hasRole(EXECUTOR_ROLE, address(this)));
     }
+
+    function test_propose() public{
+        //set up governance contract and ACL
+        address[] memory proposers = new address[](1);
+        proposers[0] = address(this);
+
+        address[] memory voters = new address[](1);
+        voters[0] = address(this);
+
+        address[] memory executors = new address[](1);
+        executors[0] = address(this);
+
+        NFTGovernance.setGovernanceACL(governance, proposers, voters, executors);
+
+        //proposal parameters setup
+        address target = address(this);
+        bytes memory data = abi.encodeWithSignature("SomeFunction(uint256)", 123);
+        string memory proposalHash = "Some-proposal-hash";
+        string memory description = "Test proposal";
+
+        //propose the transaction
+        NFTGovernance.propose(target, data, proposalHash, description);
+
+        //verify if the proposal has been added
+
+        (uint256[] memory proposalIds) = NFTGovernance.getProposals();
+        assertEq(proposalIds.length,1,"Unexpected num of proposals");
+        assertEq(proposalIds[0],1,"Unexpected proposal id");
+
+    }
 }
