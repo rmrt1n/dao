@@ -1,11 +1,12 @@
+.vscode/
 node_modules
+.openzeppelin
 .env
 coverage
 coverage.json
 typechain
-typechain-types
+docs/osx/03-reference-guide
 
-# Hardhat files
+#Hardhat files
 cache
 artifacts
-
