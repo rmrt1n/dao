@@ -1,1 +1,2 @@
 @openzeppelin/=node_modules/@openzeppelin
+@aragon/=node_modules/@aragon

@@ -13,7 +13,8 @@ contract NFTGovernanceTest is DSTest{
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
 
     function setUp() public{
-       NFTGovernance = new nftGovernance("Ronny","$");
+       NFTGovernance = new nftGovernance();
+
 
     }
 

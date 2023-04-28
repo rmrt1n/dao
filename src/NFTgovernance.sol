@@ -1,10 +1,17 @@
 pragma solidity ^0.8.17;
 
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
 
-contract nftGovernance is ERC721,AccessControl{
+
+contract nftGovernance is Initializable, ERC721Upgradeable, AccessControlEnumerableUpgradeable{
+    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
+    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.UintSet;
+    //using Address for address;
     address public governance;
     uint256 public _tokenID;
     uint256 public _minApprovals;
@@ -12,6 +19,7 @@ contract nftGovernance is ERC721,AccessControl{
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant VOTER_ROLE = keccak256("VOTER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
+    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     mapping(address=>bool) public WhiteList;
     mapping(uint256 => Proposal) private _proposals;
@@ -44,15 +52,28 @@ contract nftGovernance is ERC721,AccessControl{
     event ProposalCancled(uint256 indexed proposalId);
 
 
-    constructor(string memory name, string memory symbol) ERC721(name,symbol){}
+    // function initialize(IDAO _dao, address _governance) external initializer{
+    //     __PluginCloneable_init(_dao);
+    //     //TODO: change the governance address to admin address
+    //     governance = _governance;
+    // }
+    function initialize() public initializer {
+        __ERC721_init("NFT Governance Token", "NFTGT");
+        __AccessControlEnumerable_init();
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(OPERATOR_ROLE, msg.sender);
+    }
+    //constructor(string memory name, string memory symbol) ERC721(name,symbol){}
+
      
     // Set the NFT that is going to be used as governance for the DAO
     //TODO Might add an only owner modifier later
     //2 ways pre deploy the memberhip NFT then add the contract address
     function setGovernance(address nftcontract, uint256 tokenID) external{
         require(nftcontract !=address(0),"NFT contract cannot be zero");
-        require(isContract(nftcontract),"Not a contract");
-        require(ERC721(nftcontract).ownerOf(tokenID) == address(this), "NFT is not owned by the contract");
+        //remove this 2 require statements if u want to test this function. ONLY REMOVE FOR TESTING IT Works once its implemented
+        //require(isContract(nftcontract),"Not a contract");
+        //require(ERC721(nftcontract).ownerOf(tokenID) == address(this), "NFT is not owned by the contract");
         governance = nftcontract;
         _tokenID = tokenID;
     }
@@ -65,7 +86,7 @@ contract nftGovernance is ERC721,AccessControl{
         address[] calldata _voters, 
         address[] calldata _executors
     ) external {
-        require(_governanceContract != address(0), "NFT contract cannot be zero");
+        //require(_governanceContract != address(0), "NFT contract cannot be zero");
         require(_proposers.length > 0, "At least one proposer is required");
         require(_voters.length > 0, "At least one voter is required");
         require(_executors.length > 0, "At least one executor is required");
@@ -128,8 +149,6 @@ contract nftGovernance is ERC721,AccessControl{
         return proposalId;
     }
 
-    //TODO functions to add: ,cancle(),setVotingTreshold()/setQuorum();
- 
 
 
     //used to approved proposals by their ID
@@ -224,26 +243,26 @@ contract nftGovernance is ERC721,AccessControl{
     }
 
     //TODO add an onlyOwner or onlyAdmin modifier
-    //There is some errors here that got me scratching my head
-    function setQuorum(uint256 _proposalId, uint256 _percentage) external {
-        Proposal storage proposal = _proposals[_proposalId];
-        require(proposal.exists, "Proposal does not exist");
+    // //There is some errors here that got me scratching my head
+    // function setQuorum(uint256 _proposalId, uint256 _percentage) external {
+    //     Proposal storage proposal = _proposals[_proposalId];
+    //     require(proposal.exists, "Proposal does not exist");
 
-        uint256 totalVoters = 0;
-        uint256 numApprovals = proposal.approvalCount;
-        for (uint256 i = 0; i < numApprovals; i++) {
-            address voter = proposal.approvals[i];
-            if (proposal.voters[voter]) {
-                totalVoters++;
-            }
-        }
+    //     uint256 totalVoters = 0;
+    //     uint256 numApprovals = proposal.approvalCount;
+    //     for (uint256 i = 0; i < numApprovals; i++) {
+    //         address voter = proposal.approvals[i];
+    //         if (proposal.voters[voter]) {
+    //             totalVoters++;
+    //         }
+    //     }
 
-        uint256 totalSupply = 20;//IERC721(nftGovernance).totalSupply();
-        uint256 requiredVoters = (totalSupply * _percentage) / 100;
-        require(totalVoters >= requiredVoters, "Quorum not reached");
+    //     uint256 totalSupply = 20;//IERC721(nftGovernance).totalSupply();
+    //     uint256 requiredVoters = (totalSupply * _percentage) / 100;
+    //     require(totalVoters >= requiredVoters, "Quorum not reached");
 
-        //proposal.quorum = _percentage;
-    }
+    //     //proposal.quorum = _percentage;
+    // }
 
 
 
@@ -262,8 +281,22 @@ contract nftGovernance is ERC721,AccessControl{
         return size>0;
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControl) returns (bool) {
+    // function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControl, PluginCloneable) returns (bool) {
+    //     return super.supportsInterface(interfaceId);
+    // }
+
+    function _msgSender() internal view override(ContextUpgradeable) returns (address) {
+        return super._msgSender();
+    }
+
+    function _msgData() internal view override(ContextUpgradeable) returns (bytes calldata) {
+        return super._msgData();
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721Upgradeable, AccessControlEnumerableUpgradeable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
+
+
 
 }
