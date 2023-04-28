@@ -16,6 +16,18 @@ contract NFTGovernanceTest is DSTest{
        NFTGovernance = new nftGovernance();
 
 
+       // Set up governance ACL
+        address[] memory proposers = new address[](1);
+        proposers[0] = address(this);
+
+        address[] memory voters = new address[](1);
+        voters[0] = address(this);
+
+        address[] memory executors = new address[](1);
+        executors[0] = address(this);
+
+        NFTGovernance.setGovernanceACL(governance, proposers, voters, executors);
+
     }
 
     function testsetGovernance() public{
@@ -51,16 +63,16 @@ contract NFTGovernanceTest is DSTest{
 
     function test_propose() public{
         //set up governance contract and ACL
-        address[] memory proposers = new address[](1);
-        proposers[0] = address(this);
+        // address[] memory proposers = new address[](1);
+        // proposers[0] = address(this);
 
-        address[] memory voters = new address[](1);
-        voters[0] = address(this);
+        // address[] memory voters = new address[](1);
+        // voters[0] = address(this);
 
-        address[] memory executors = new address[](1);
-        executors[0] = address(this);
+        // address[] memory executors = new address[](1);
+        // executors[0] = address(this);
 
-        NFTGovernance.setGovernanceACL(governance, proposers, voters, executors);
+        // NFTGovernance.setGovernanceACL(governance, proposers, voters, executors);
 
         //proposal parameters setup
         address target = address(this);
@@ -77,5 +89,16 @@ contract NFTGovernanceTest is DSTest{
         assertEq(proposalIds.length,1,"Unexpected num of proposals");
         assertEq(proposalIds[0],1,"Unexpected proposal id");
 
+    }
+
+    function test_approve() public{
+        address target = address(this);
+        bytes memory data = abi.encodeWithSignature("SomeFunction(uint256)", 123);
+        string memory proposalHash = "Some-proposal-hash";
+        string memory description = "Test proposal";
+
+        //propose the transaction
+        uint256 proposalId = NFTGovernance.propose(target, data, proposalHash, description);
+        NFTGovernance.approve(proposalId);
     }
 }
