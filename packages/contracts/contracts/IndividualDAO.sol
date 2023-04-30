@@ -5,21 +5,69 @@ pragma solidity ^0.8.17;
 import "hardhat/console.sol";
 
 import "@aragon/osx/framework/dao/DAOFactory.sol";
+import "./AttestationStation.sol";
 
-// import {DAO} from "@aragon/osx/core/dao/DAO.sol";
-// import {PermissionLib} from "@aragon/osx/core/permission/PermissionLib.sol";
-// import {createERC1967Proxy} from "@aragon/osx/utils/Proxy.sol";
-// import {PluginRepo} from "@aragon/osx/framework/plugin/repo/PluginRepo.sol";
-// import {PluginSetupProcessor} from "@aragon/osx/framework/plugin/setup/PluginSetupProcessor.sol";
-// import {hashHelpers, PluginSetupRef} from "@aragon/osx/framework/plugin/setup/PluginSetupProcessorHelpers.sol";
-// import {IPluginSetup} from "@aragon/osx/framework/plugin/setup/IPluginSetu p.sol";
-// import {DAORegistry} from "@aragon/core/contracts/factory/DAORegistry.sol";
+// Only the owner can change the constructor parameters
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract IndividualDAO {
-    // modifier isDAOAttested() {
-    //     require(msg.sender == "", "Only the owner can call this function");
-    //     _;
-    // }
+/// @title IndividualDAO
+/// @notice Custom DAOFactory for creating individual DAOs with selected plugins.
+contract IndividualDAO is Ownable {
+    DAOFactory public daoFactory;
+    AttestationStation public attestationStationContract;
+    uint256 public minAttestations;
+
+    /// @param _daoFactoryAddress The address of the DAOFactory contract deployed on the network.
+    constructor(
+        address _daoFactoryAddress,
+        address _attestationStationProxy,
+        uint256 _minAttestations
+    ) {
+        daoFactory = DAOFactory(_daoFactoryAddress);
+        attestationStationContract = AttestationStation(
+            _attestationStationProxy
+        );
+        minAttestations = _minAttestations;
+    }
+
+    //the modifier accepts an array of addresses, the salt used to get the DAO address, and the recovery key
+    modifier _isDAOAttested(
+        address[] memory _recoveryAccounts,
+        bytes32 _salt,
+        bytes32 _recoveryKey
+    ) {
+        //get the DAO address from the salt
+        address daoAddress = daoFactory.computeAddress(_salt);
+
+        //use a for loop to check each address in the array, and only use require statement if any false is found
+        for (uint256 i = 0; i < _recoveryAccounts.length; i++) {
+            //check if the address is attested
+            require(
+                attestationStationContract.attestations(
+                    _recoveryAccounts[i],
+                    address(this),
+                    _recoveryKey == 
+                ),
+                "Address not attested"
+            );
+        }
+        _;
+    }
+
+    function setAttestationStation(
+        address _attestationStation
+    ) external onlyOwner {
+        attestationStationContract = AttestationStation(_attestationStation);
+    }
+
+    function setMinAttestations(uint256 _minAttestations) external onlyOwner {
+        minAttestations = _minAttestations;
+    }
+
+    function setDAOFactory(address _daoFactoryAddress) external onlyOwner {
+        daoFactory = DAOFactory(_daoFactoryAddress);
+    }
+
     /// @notice Creates a new DAO, registers it on the  DAO registry, and installs a list of plugins via the plugin setup processor.
     /// @param _daoSettings The DAO settings to be set during the DAO initialization.
     /// @param _pluginSettings The array containing references to plugins and their settings to be installed after the DAO has been created.
