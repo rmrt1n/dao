@@ -1,5 +1,6 @@
 {
   "goerli": {
+    "AragonDAOFactory": "0x5eD8B5b8b7eD5f7eEeA9e9cA7f7A5cAe4fBcB3e0",
     "IndividualDAOFactory": "0x5eD8B5b8b7eD5f7eEeA9e9cA7f7A5cAe4fBcB3e0",
     "SubDAOFactory": "0x5eD8B5b8b7eD5f7eEeA9e9cA7f7A5cAe4fBcB3e0",
     "SubmitAttestation": "0x5eD8B5b8b7eD5f7eEeA9e9cA7f7A5cAe4fBcB3e0",
@@ -7,6 +8,7 @@
     "CheckAttestationProxy": "0x5eD8B5b8b7eD5f7eEeA9e9cA7f7A5cAe4fBcB3e0"
   },
   "mumbai": {
+    "AragonDAOFactory": "0x5eD8B5b8b7eD5f7eEeA9e9cA7f7A5cAe4fBcB3e0",
     "IndividualDAOFactory": "0x5eD8B5b8b7eD5f7eEeA9e9cA7f7A5cAe4fBcB3e0",
     "SubDAOFactory": "0x5eD8B5b8b7eD5f7eEeA9e9cA7f7A5cAe4fBcB3e0",
     "SubmitAttestation": "0x5eD8B5b8b7eD5f7eEeA9e9cA7f7A5cAe4fBcB3e0",
