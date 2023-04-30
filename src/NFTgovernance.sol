@@ -6,6 +6,8 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
+import {IDAO, DAO} from '@aragon/osx/core/dao/DAO.sol';
+//import {PluginCloneable, IDAO} from '@aragon/osx/core/plugin/PluginCloneable.sol';
 
 
 contract nftGovernance is Initializable, ERC721Upgradeable, AccessControlEnumerableUpgradeable{
@@ -13,6 +15,7 @@ contract nftGovernance is Initializable, ERC721Upgradeable, AccessControlEnumera
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.UintSet;
     //using Address for address;
     address public governance;
+    address public admin;
     uint256 public _tokenID;
     uint256 public _minApprovals;
     uint256 private _proposalCount;
@@ -20,6 +23,7 @@ contract nftGovernance is Initializable, ERC721Upgradeable, AccessControlEnumera
     bytes32 public constant VOTER_ROLE = keccak256("VOTER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
+    bytes32 public constant ADMIN_EXECUTE_PERMISSION_ID = keccak256('ADMIN_EXECUTE_PERMISSION');
 
     mapping(address=>bool) public WhiteList;
     mapping(uint256 => Proposal) private _proposals;
@@ -52,12 +56,12 @@ contract nftGovernance is Initializable, ERC721Upgradeable, AccessControlEnumera
     event ProposalCancled(uint256 indexed proposalId);
 
 
-    // function initialize(IDAO _dao, address _governance) external initializer{
+    //function initialize(IDAO _dao, address _admin) external initializer{
     //     __PluginCloneable_init(_dao);
     //     //TODO: change the governance address to admin address
-    //     governance = _governance;
+    //     admin = _admin;
     // }
-    function initialize() public initializer {
+    function initialize(IDAO _dao, address _admin) public initializer {
         __ERC721_init("NFT Governance Token", "NFTGT");
         __AccessControlEnumerable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
