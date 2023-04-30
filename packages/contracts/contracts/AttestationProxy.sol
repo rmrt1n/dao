@@ -25,7 +25,7 @@ interface IAttestationStation {
     function attest(AttestationData[] memory _attestations) external;
 }
 
-contract SubmitAttestation is Ownable {
+contract AttestationProxy is Ownable {
     using ECDSA for bytes32;
 
     /// @dev The interface for OP's Attestation Station.

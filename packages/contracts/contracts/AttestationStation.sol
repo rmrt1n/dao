@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-contract CheckAttestation {
+contract AttestationStation {
     /**
      * @notice Maps addresses to attestations. Creator => About => Key => Value.
      */

@@ -7,7 +7,7 @@ pragma solidity ^0.8.17;
  *         if the caller is address(0), meaning that the call originated from an off-chain
  *         simulation.
  */
-contract CheckAttestationProxy {
+contract AttestationStationProxy {
     /**
      * @notice The storage slot that holds the address of the implementation.
      *         bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)
