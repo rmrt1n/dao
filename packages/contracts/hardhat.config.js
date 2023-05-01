@@ -194,6 +194,14 @@ module.exports = {
         mnemonic: process.env.MNEMONIC,
       },
     },
+    hardhat: {
+      forking: {
+        url: process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI
+          ? `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI}`
+          : process.env.ETH_SEPOLIA_URL,
+        blockNumber: 3400180,
+      },
+    },
   },
   namedAccounts: {
     deployer: {
