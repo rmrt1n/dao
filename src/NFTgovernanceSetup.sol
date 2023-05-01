@@ -8,13 +8,17 @@ import {PluginSetup, IPluginSetup} from '@aragon/osx/framework/plugin/setup/Plug
 import {nftGovernance} from './NFTGovernance.sol';
 import {IDAO, DAO} from '@aragon/osx/core/dao/DAO.sol';
 
-contract nfgGovernanceSetup is PluginSetup{
+contract nftGovernanceSetup is PluginSetup{
     using Clones for address;
 
     address private immutable nftGovernanceImplementation;
 
-    constructor(){
-        nftGovernanceImplementation = address(new nftGovernance());
+    // constructor(){
+    //     nftGovernanceImplementation = address(new nftGovernance());
+    // }
+    constructor(address _nftPlugin){
+        //nftGovernanceImplementation = address(new nftGovernance());
+        nftGovernanceImplementation = _nftPlugin;
     }
 
     function prepareInstallation(
@@ -22,7 +26,14 @@ contract nfgGovernanceSetup is PluginSetup{
         bytes calldata _data
     ) external returns (address plugin, PreparedSetupData memory preparedSetupData) {
         // Decode `_data` to extract the params needed for cloning and initializing `Admin` plugin.
-        address admin = abi.decode(_data, (address));
+        //ddress admin = abi.decode(_data, (address));
+        (
+            IDAO _dao,
+            address admin
+        ) = abi.decode(
+            _data,
+            (IDAO, address)
+        );
 
         // Clone plugin contract.
         plugin = nftGovernanceImplementation.clone();

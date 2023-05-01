@@ -10,7 +10,7 @@ import {IDAO, DAO} from '@aragon/osx/core/dao/DAO.sol';
 //import {PluginCloneable, IDAO} from '@aragon/osx/core/plugin/PluginCloneable.sol';
 
 
-contract nftGovernance is Initializable, ERC721Upgradeable, AccessControlEnumerableUpgradeable{
+contract nftGovernance is Initializable,ERC721Upgradeable, AccessControlEnumerableUpgradeable{
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.UintSet;
     //using Address for address;
@@ -122,7 +122,7 @@ contract nftGovernance is Initializable, ERC721Upgradeable, AccessControlEnumera
     //function to create new proposals in the governance contract.
     function propose(
         address target,
-        bytes memory data,
+        bytes memory data, //TODO: implement IPfs
         string memory proposalHash,
         string memory description
     ) external returns (uint256) {
@@ -172,6 +172,7 @@ contract nftGovernance is Initializable, ERC721Upgradeable, AccessControlEnumera
     }
 
     //usrs with executer role can execute a proposal if threshold has been meet or if it gets enough approvals
+    //TODO: add option to execute function calls as proposal data
     function execute(uint256 proposalId) external {
         require(hasRole(EXECUTOR_ROLE, msg.sender), "Caller is not an executor");
 
