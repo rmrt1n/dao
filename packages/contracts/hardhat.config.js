@@ -154,20 +154,21 @@ module.exports = {
       optimisticGoerli: process.env.OPTIMISTIC_GOERLI_API_KEY,
       polygonMumbai: process.env.POLYGONSCAN_API_KEY,
       optimisticEthereum: process.env.OPTIMISTIC_GOERLI_API_KEY,
+      polygon: process.env.POLYGONSCAN_API_KEY,
     },
   },
   solidity: "0.8.17",
   settings: {
     optimizer: {
       enabled: true,
-      runs: 99999,
+      runs: 999999999,
     },
   },
   networks: {
     "local-devnode": {
       url: "http://localhost:8545",
       accounts: {
-        mnemonic: "test test test test test test test test test test test junk",
+        mnemonic: process.env.MNEMONIC,
       },
     },
     optimismGoerli: {
@@ -199,7 +200,23 @@ module.exports = {
         url: process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI
           ? `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI}`
           : process.env.ETH_SEPOLIA_URL,
-        blockNumber: 3400180,
+      },
+      accounts: {
+        mnemonic: process.env.MNEMONIC,
+      },
+    },
+    polygon: {
+      url: process.env.ALCHEMY_API_KEY_POLYGON
+        ? `https://polygon-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_POLYGON}`
+        : process.env.ETH_SEPOLIA_URL,
+      accounts: {
+        mnemonic: process.env.MNEMONIC,
+      },
+    },
+    devnet: {
+      url: "https://rpc.vnet.tenderly.co/devnet/defaf85a-5fc8-45b6-9811-b54fd8af9fe4/bea8de79-145e-4f57-a6ba-6e633e339329",
+      accounts: {
+        mnemonic: process.env.MNEMONIC,
       },
     },
   },
@@ -211,6 +228,8 @@ module.exports = {
       scrollAlpha: 8,
       polygonMumbai: 8,
       optimism: 6,
+      polygon: 6,
+      devnet: 8,
     },
   },
   mocha: {
