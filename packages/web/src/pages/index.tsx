@@ -8,9 +8,11 @@ const Page: NextPageWithLayout = () => {
     <div>
       <h1>product tagline</h1>
       <div className="flex gap-4">
-        <div className="border p-4">
-          <p>create dao</p>
-        </div>
+        <Link href="/create-dao">
+          <div className="border p-4">
+            <p>create dao</p>
+          </div>
+        </Link>
         <div className="border p-4">
           <p>create daooo</p>
         </div>
