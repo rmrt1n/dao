@@ -1,101 +1,241 @@
 pragma solidity 0.8.17;
 
-import {Clones} from '@openzeppelin/contracts/proxy/Clones.sol';
-
-import {PermissionLib} from '@aragon/osx/core/permission/PermissionLib.sol';
-import {PluginSetup, IPluginSetup} from '@aragon/osx/framework/plugin/setup/PluginSetup.sol';
-
-import {nftGovernance} from './NFTGovernance.sol';
+import { PluginSetup } from '@aragon/osx/framework/plugin/setup/PluginSetup.sol';
+import { nftGovernance } from './NFTgovernance.sol';
+import { PermissionLib } from '@aragon/osx/core/permission/PermissionLib.sol';
+import { IERC721 } from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {IDAO, DAO} from '@aragon/osx/core/dao/DAO.sol';
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
-contract nftGovernanceSetup is PluginSetup{
-    using Clones for address;
-
+contract nftGovernanceSetup is PluginSetup {
     address private immutable nftGovernanceImplementation;
 
-    // constructor(){
-    //     nftGovernanceImplementation = address(new nftGovernance());
-    // }
-    constructor(address _nftPlugin){
-        //nftGovernanceImplementation = address(new nftGovernance());
-        nftGovernanceImplementation = _nftPlugin;
-    }
 
+    
+    constructor(address _dao, address admin, IERC721 _nft) { //change address _dao back to IDAO _dao later
+        nftGovernanceImplementation = address(new nftGovernance(IDAO(_dao), admin, _nft)); //remove this constructor later and add in in prepareInstallation
+    }
     function prepareInstallation(
         address _dao,
         bytes calldata _data
     ) external returns (address plugin, PreparedSetupData memory preparedSetupData) {
-        // Decode `_data` to extract the params needed for cloning and initializing `Admin` plugin.
-        //ddress admin = abi.decode(_data, (address));
-        (
-            IDAO _dao,
-            address admin
-        ) = abi.decode(
-            _data,
-            (IDAO, address)
-        );
+        (address admin, address nft) = abi.decode(_data, (address, address));
 
-        // Clone plugin contract.
-        plugin = nftGovernanceImplementation.clone();
+        plugin = Clones.clone(nftGovernanceImplementation);
+        
+        nftGovernance(plugin); 
 
-        // Initialize cloned plugin contract.
-        nftGovernance(plugin).initialize(IDAO(_dao), admin);
+        PermissionLib.MultiTargetPermission[] memory permissions = new PermissionLib.MultiTargetPermission[](2);
 
-        // Prepare permissions
-        PermissionLib.MultiTargetPermission[]
-        memory permissions = new PermissionLib.MultiTargetPermission[](2);
-
-        // Grant the `ADMIN_EXECUTE_PERMISSION` of the Plugin to the admin.
         permissions[0] = PermissionLib.MultiTargetPermission({
-        operation: PermissionLib.Operation.Grant,
-        where: plugin,
-        who: admin,
-        condition: PermissionLib.NO_CONDITION,
-        permissionId: nftGovernance(plugin).ADMIN_EXECUTE_PERMISSION_ID()
+            operation: PermissionLib.Operation.Grant,
+            where: plugin,
+            who: _dao,
+            condition: PermissionLib.NO_CONDITION,
+            permissionId: keccak256("PROPOSER_ROLE")
         });
 
-        // Grant the `EXECUTE_PERMISSION` on the DAO to the plugin.
         permissions[1] = PermissionLib.MultiTargetPermission({
-        operation: PermissionLib.Operation.Grant,
-        where: _dao,
-        who: plugin,
-        condition: PermissionLib.NO_CONDITION,
-        permissionId: DAO(payable(_dao)).EXECUTE_PERMISSION_ID()
+            operation: PermissionLib.Operation.Grant,
+            where: plugin,
+            who:_dao,
+            condition: PermissionLib.NO_CONDITION,
+            permissionId: keccak256('ADMIN_EXECUTE_PERMISSION')
         });
-
         preparedSetupData.permissions = permissions;
+
     }
 
-    /// @inheritdoc IPluginSetup
     function prepareUninstallation(
         address _dao,
         SetupPayload calldata _payload
-    ) external view returns (PermissionLib.MultiTargetPermission[] memory permissions) {
-        // Collect addresses
-        address plugin = _payload.plugin;
-        address admin = nftGovernance(plugin).admin();
-
-        // Prepare permissions
-        permissions = new PermissionLib.MultiTargetPermission[](2);
+    ) external pure returns (PermissionLib.MultiTargetPermission[] memory permissions){
+        permissions = new PermissionLib.MultiTargetPermission[](1);
 
         permissions[0] = PermissionLib.MultiTargetPermission({
-        operation: PermissionLib.Operation.Revoke,
-        where: plugin,
-        who: admin,
-        condition: PermissionLib.NO_CONDITION,
-        permissionId: nftGovernance(plugin).ADMIN_EXECUTE_PERMISSION_ID()
+            operation: PermissionLib.Operation.Revoke,
+            where: _payload.plugin,
+            who: _dao,
+            condition: PermissionLib.NO_CONDITION,
+            permissionId: keccak256('ADMIN_EXECUTE_PERMISSION')
         });
 
-        permissions[1] = PermissionLib.MultiTargetPermission({
-        operation: PermissionLib.Operation.Revoke,
-        where: _dao,
-        who: plugin,
-        condition: PermissionLib.NO_CONDITION,
-        permissionId: DAO(payable(_dao)).EXECUTE_PERMISSION_ID()
-        });
     }
-      /// @inheritdoc IPluginSetup
-  function implementation() external view returns (address) {
-    return nftGovernanceImplementation;
-  }
+
+    function implementation() external view returns (address) {
+        return nftGovernanceImplementation;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// pragma solidity 0.8.17;
+
+// import {Clones} from '@openzeppelin/contracts/proxy/Clones.sol';
+
+// import {PermissionLib} from '@aragon/osx/core/permission/PermissionLib.sol';
+// import {PluginSetup, IPluginSetup} from '@aragon/osx/framework/plugin/setup/PluginSetup.sol';
+
+// import {nftGovernance} from './NFTgovernance.sol';
+// import {IDAO, DAO} from '@aragon/osx/core/dao/DAO.sol';
+// //assign the permission where the nft is already minted by the address
+
+// contract nftGovernanceSetup is PluginSetup{
+//     using Clones for address;
+
+//     address private immutable nftGovernanceImplementation;
+
+//     // constructor(){
+//     //     nftGovernanceImplementation = address(new nftGovernance());
+//     // }
+//     constructor(address _nftPlugin){
+//         //nftGovernanceImplementation = address(new nftGovernance());
+//         nftGovernanceImplementation = _nftPlugin;
+//     }
+
+//     function prepareInstallation(
+//         address _dao,
+//         bytes calldata _data
+//     ) external returns (address plugin, PreparedSetupData memory preparedSetupData) {
+//         // Decode `_data` to extract the params needed for cloning and initializing `Admin` plugin.
+//         //ddress admin = abi.decode(_data, (address));
+//         ( address admin) = abi.decode(_data,(IDAO, address));
+
+//         // Clone plugin contract.
+//         plugin = nftGovernanceImplementation.clone();
+
+//         // Initialize cloned plugin contract.
+//         nftGovernance(plugin).initialize(IDAO(_dao), admin);
+
+//         // Prepare permissions
+//         PermissionLib.MultiTargetPermission[]
+//         memory permissions = new PermissionLib.MultiTargetPermission[](2);
+
+//         // Grant the `ADMIN_EXECUTE_PERMISSION` of the Plugin to the admin.
+//         permissions[0] = PermissionLib.MultiTargetPermission({
+//         operation: PermissionLib.Operation.Grant,
+//         where: plugin,
+//         who: admin,
+//         condition: PermissionLib.NO_CONDITION,
+//         permissionId: nftGovernance(plugin).ADMIN_EXECUTE_PERMISSION_ID()
+//         });
+
+//         // Grant the `EXECUTE_PERMISSION` on the DAO to the plugin.
+//         permissions[1] = PermissionLib.MultiTargetPermission({
+//         operation: PermissionLib.Operation.Grant,
+//         where: _dao,
+//         who: plugin,
+//         condition: PermissionLib.NO_CONDITION,
+//         permissionId: DAO(payable(_dao)).EXECUTE_PERMISSION_ID()
+//         });
+
+//         permissions[2] = PermissionLib.MultiTargetPermission({
+//         operation: PermissionLib.Operation.Revoke,
+//         where: plugin,
+//         who: admin,
+//         condition: PermissionLib.NO_CONDITION,
+//         permissionId: nftGovernance(plugin).PROPOSER_ROLE()
+//         });
+
+//         preparedSetupData.permissions = permissions;
+//     }
+
+//     /// @inheritdoc IPluginSetup
+//     function prepareUninstallation(
+//         address _dao,
+//         SetupPayload calldata _payload
+//     ) external view returns (PermissionLib.MultiTargetPermission[] memory permissions) {
+//         // Collect addresses
+//         address plugin = _payload.plugin;
+//         address admin = nftGovernance(plugin).admin();
+
+//         // Prepare permissions
+//         permissions = new PermissionLib.MultiTargetPermission[](2);
+
+//         permissions[0] = PermissionLib.MultiTargetPermission({
+//         operation: PermissionLib.Operation.Revoke,
+//         where: plugin,
+//         who: admin,
+//         condition: PermissionLib.NO_CONDITION,
+//         permissionId: nftGovernance(plugin).ADMIN_EXECUTE_PERMISSION_ID()
+//         });
+
+//         permissions[1] = PermissionLib.MultiTargetPermission({
+//         operation: PermissionLib.Operation.Revoke,
+//         where: _dao,
+//         who: plugin,
+//         condition: PermissionLib.NO_CONDITION,
+//         permissionId: DAO(payable(_dao)).EXECUTE_PERMISSION_ID()
+//         });
+                
+//         permissions[2] = PermissionLib.MultiTargetPermission({
+//         operation: PermissionLib.Operation.Revoke,
+//         where: plugin,
+//         who: admin,
+//         condition: PermissionLib.NO_CONDITION,
+//         permissionId: nftGovernance(plugin).PROPOSER_ROLE()
+//         });
+//     }
+//       /// @inheritdoc IPluginSetup
+//   function implementation() external view returns (address) {
+//     return nftGovernanceImplementation;
+//   }
+// }
