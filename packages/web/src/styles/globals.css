@@ -9,4 +9,7 @@
   h2 {
     @apply font-bold text-xl md:text-2xl lg:text-3xl;
   }
+  h3 {
+    @apply font-bold text-lg;
+  }
 }
