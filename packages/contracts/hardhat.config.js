@@ -157,82 +157,85 @@ module.exports = {
       polygon: process.env.POLYGONSCAN_API_KEY,
     },
   },
-  solidity: "0.8.17",
-  settings: {
-    optimizer: {
-      enabled: true,
-      runs: 999999999,
-    },
-  },
-  networks: {
-    "local-devnode": {
-      url: "http://localhost:8545",
-      accounts: {
-        mnemonic: process.env.MNEMONIC,
+  solidity: {
+    version: "0.8.17",
+    settings: {
+      viaIR: true,
+      optimizer: {
+        enabled: true,
+        runs: 999999999,
       },
     },
-    optimismGoerli: {
-      url: process.env.ALCHEMY_API_KEY_OPTIMISM_GOERLI
-        ? `https://opt-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_OPTIMISM_GOERLI}`
-        : process.env.OPTIMISM_GOERLI_URL,
-      accounts: {
-        mnemonic: process.env.MNEMONIC,
+    networks: {
+      "local-devnode": {
+        url: "http://localhost:8545",
+        accounts: {
+          mnemonic: process.env.MNEMONIC,
+        },
       },
-    },
-    ethSepolia: {
-      url: process.env.ALCHEMY_API_KEY_SEPOLIA
-        ? `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_SEPOLIA}`
-        : process.env.ETH_SEPOLIA_URL,
-      accounts: {
-        mnemonic: process.env.MNEMONIC,
+      optimismGoerli: {
+        url: process.env.ALCHEMY_API_KEY_OPTIMISM_GOERLI
+          ? `https://opt-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_OPTIMISM_GOERLI}`
+          : process.env.OPTIMISM_GOERLI_URL,
+        accounts: {
+          mnemonic: process.env.MNEMONIC,
+        },
       },
-    },
-    polygonMumbai: {
-      url: process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI
-        ? `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI}`
-        : process.env.POLYGON_MUMBAI_URL,
-      accounts: {
-        mnemonic: process.env.MNEMONIC,
-      },
-    },
-    hardhat: {
-      forking: {
-        url: process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI
-          ? `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI}`
+      ethSepolia: {
+        url: process.env.ALCHEMY_API_KEY_SEPOLIA
+          ? `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_SEPOLIA}`
           : process.env.ETH_SEPOLIA_URL,
+        accounts: {
+          mnemonic: process.env.MNEMONIC,
+        },
       },
-      accounts: {
-        mnemonic: process.env.MNEMONIC,
+      polygonMumbai: {
+        url: process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI
+          ? `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI}`
+          : process.env.POLYGON_MUMBAI_URL,
+        accounts: {
+          mnemonic: process.env.MNEMONIC,
+        },
+      },
+      hardhat: {
+        forking: {
+          url: process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI
+            ? `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_POLYGON_MUMBAI}`
+            : process.env.ETH_SEPOLIA_URL,
+        },
+        accounts: {
+          mnemonic: process.env.MNEMONIC,
+        },
+      },
+      polygon: {
+        url: process.env.ALCHEMY_API_KEY_POLYGON
+          ? `https://polygon-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_POLYGON}`
+          : process.env.ETH_SEPOLIA_URL,
+        accounts: {
+          mnemonic: process.env.MNEMONIC,
+        },
+      },
+      devnet: {
+        url: "https://rpc.vnet.tenderly.co/devnet/defaf85a-5fc8-45b6-9811-b54fd8af9fe4/bea8de79-145e-4f57-a6ba-6e633e339329",
+        accounts: {
+          mnemonic: process.env.MNEMONIC,
+        },
       },
     },
-    polygon: {
-      url: process.env.ALCHEMY_API_KEY_POLYGON
-        ? `https://polygon-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_POLYGON}`
-        : process.env.ETH_SEPOLIA_URL,
-      accounts: {
-        mnemonic: process.env.MNEMONIC,
+    namedAccounts: {
+      deployer: {
+        default: 6,
+        ethSepolia: 6,
+        optimismGoerli: 8,
+        scrollAlpha: 8,
+        polygonMumbai: 8,
+        optimism: 6,
+        polygon: 6,
+        devnet: 8,
       },
     },
-    devnet: {
-      url: "https://rpc.vnet.tenderly.co/devnet/defaf85a-5fc8-45b6-9811-b54fd8af9fe4/bea8de79-145e-4f57-a6ba-6e633e339329",
-      accounts: {
-        mnemonic: process.env.MNEMONIC,
-      },
+    mocha: {
+      timeout: 200000,
     },
-  },
-  namedAccounts: {
-    deployer: {
-      default: 6,
-      ethSepolia: 6,
-      optimismGoerli: 8,
-      scrollAlpha: 8,
-      polygonMumbai: 8,
-      optimism: 6,
-      polygon: 6,
-      devnet: 8,
-    },
-  },
-  mocha: {
-    timeout: 200000,
   },
 };
