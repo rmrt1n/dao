@@ -12,6 +12,15 @@ const wallet = new ethers.Wallet(process.env.KNOWN_PRIVATE_KEY, provider);
 
 console.log("wallet.address", wallet.address);
 
+/* 
+1. This plugin will check that the proposal to create a SubDAO has passed (SubDAO Proposal)
+2. Gets the necessary params to create this new DAO (subdomain, metadata, URI) (the call happens here)
+3. The daoFactory in the plugin will create the new DAO (the call happens here)
+4. Agreed budget will be transferred to the treasury of this new DAO
+5. Hats protocol will be used to assign special roles to specific members of the new DAO using proposal details (SubDAO Roles)
+6. There should be a function that checks if the SubDAO active period has ended and if so, any actions will be reverted.
+*/
+
 async function deployDAO() {
   const BN = ethers.BigNumber.from;
   const ZeroAddress = `0x${"00".repeat(20)}`;
