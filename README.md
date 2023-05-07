@@ -1,176 +1,64 @@
-![Aragon](https://res.cloudinary.com/dacofvu8m/image/upload/v1677353961/Aragon%20CodeArena/osx_blue_logo_lqrvkr.png)
+# ClubDAO - Decentralizing Clubs and Club Union Operation
 
-# Aragon OSx Protocol
+---
 
-The Aragon OSx protocol is the foundation layer of the new Aragon stack. It allows users to create, manage, and customize DAOs in a way that is lean, adaptable, and secure.
+## Purpose of ClubDAO ⚡
 
-Within this monorepo, you will be able to find 3 individual packages:
+Make it easy for any university clubs to create DAOs and collaborate with other clubs.
 
-- [Contracts](https://github.com/aragon/osx/tree/develop/packages/contracts): the Aragon OSx protocol contracts.
-- [Subgraph](https://github.com/aragon/osx/tree/develop/packages/subgraph): contains all code generating our subgraph and event indexing.
-- [Contract-ethers](https://github.com/aragon/osx/tree/develop/packages/contracts-ethers): contains the connection between the ethers package and our contracts.
+# Why DAO❓
 
-The contents of this repository are distributed via 3 different NPM packages:
+With a DAO structure, we don’t need a president or committee set specifically for the Club Union. Club members can coordinate with the DAO to create events, tasks and apply for treasury funding through votes and proposals.
 
-- `@aragon/osx`: The source files, including the protocol contracts and interfaces
-- `@aragon/osx-artifacts`: The contracts bytecode and ABI to use the protocol or deploy it
-- `@aragon/osx-ethers`: The TypeScript wrappers to use the protocol or deploy it using ethers.js
+# Functions 🎯
 
-For more information on the individual packages, please read the respective `README.md`.
+## Individual Club DAO(s)
 
-## Audit
+A DAO management tool for clubs
 
-The core smart contracts have been audited by [Halborn](https://www.halborn.com/).
+1. Create DAO and register club members.
+2. Create proposals related to Club activities and operations.
 
-- [Security audit report](./audits/AragonOSx-security-audit-report-halborn.pdf)
-- The commit ID: [cb0621dc5185a73240a6ca33fccc7698f059fdf5](https://github.com/aragon/osx/commit/cb0621dc5185a73240a6ca33fccc7698f059fdf5)
-- February 24th 2023
+## DAOs of DAOs
 
-## Contributing
+A DAO comprising of multiple Club DAOs, allowing DAOs to coordinate with each other. 
 
-We'd love to hear what you think! If you want to build this with us, please find a detailed contribution guide in the `CONTRIBUTION_GUIDE.md` [file here](https://github.com/aragon/osx/blob/develop/CONTRIBUTION_GUIDE.md).
+1. Facilitates the creation of SubDAO(s) that automatically expire after a set period, providing clubs with an opportunity to collaborate and coordinate.
+2. Allows creation of tasks as bounties to allow Clubs to leverage resources from other Clubs.
 
-## Setup
+# DAO Membership ♠️
 
-Start by running `yarn install` in the project root in your terminal.
+Clubs will have the option to assign membership either through distributing ERC-20 Tokens or NFT during the creation of the DAO. Holders of these token will have the privilege to vote, create proposal and participate in the DAO’s Discourse. 
 
-### Dependencies
+The *******DAOs of DAOs*******  will likely have its own ERC-20 token to allow DAOs to vote on matters related between two or more DAOs. 
 
-Since the repo is set up as yarn workspace, all the linking is done automatically.
+# DAO Treasury 🪙
 
-## How the Aragon OSx protocol works
+There will be two categories for treasury:
 
-To review the contracts powering the Aragon OSx protocol, feel free to head to `packages/contracts`.
+1) Club DAO’s Treasury: Related to the internal Club DAO’s activity, funded through membership fee or other source of income for the club.
 
-The Aragon OSx protocol architecture is composed of two key sections:
+2) DAOs of DAOs’ Treasury: A shared treasury between all the Club DAOs which will be funded by the existing Club DAOs and SubDAOs.
 
-- **Core contracts**: the primitives the end user will interact with. It is composed of mostly 3 parts:
-  - **DAO contract:** the main contract of our core. It holds a DAO's assets and possible actions.
-  - **Permissions**: govern interactions between the plugins, DAOs, and any other address - allowing them (or not) to execute actions on behalf of and within the DAO.
-  - **Plugins**: base templates of plugins to build upon.
-- **Framework contracts**: in charge of creating and registering each deployed DAO or plugin. It contains:
-  - **DAO and Plugin Repository Factories**: creates DAOs or plugins.
-  - **DAO and Plugin Registries**: registers into our protocol those DAOs or plugins.
-  - **Plugin Setup Processor:** installs and uninstalls plugins into DAOs.
+# Misbehaviors & Exploit Prevent Measures 💀
 
-Additionally to those two sections, we have developed several plugins DAOs can easily install upon creation. These are:
+1. Creation of Club DAOs that have no members.
+    1. We will require an attestation by 2 or more members before allowing the creation of the DAO on-chain.
+2. More Committee = More Voting Power.
+    1. Halving committee voting power as the club committee increase.
+3. Absence of contribution.
+    1. Introduce penalty when club agreed to participate in an event through ClubDAO but absence later.
+4. Reckless setting of level among club committee in exchange of more weight.
+    1. Introduce system to appeal such changes, once appeal submitted, votes involving club committee from new changes to be on hold until appeal approved or disapproved by other clubs.
+5. Club to be inactive on voting, causing system to be ineffective.
+    1. Introduce a due date for the vote to be calculate and Penalty of token reduction.
 
-- **Token Voting plugin**: enables token holders to vote yes, no or abstain on incoming DAO proposals
-- **Multisig plugin**: enables DAO governance based on approval from a pre-defined members list.
-- **Addresslist Voting plugin**: enables a pre-defined set of addresses to vote yes, no or abstain in a "one address, one vote" mode
-- **Admin plugin**: enables full access to an account needing to perform initial maintenance tasks without unnecessary overhead
+# Voting 🔥
 
-Let's dive into more detail on each of these sections.
-
-### Core Contracts
-
-The _Core Contracts_ describe how every DAO generated by the Aragon OSx protocol will be set up. It is very lean by design and constitutes the most critical aspects of our architecture.
-
-In a nutshell, each DAO is composed of 3 interconnecting components:
-
-1. **The DAO contract:** The DAO contract is where the **core functionality** of the DAO lies. It is the contract in charge of:
-   - Representing the identity and metadata of the DAO (ENS name, logo, description, other metadata)
-   - Holding and managing the treasury assets
-   - Executing arbitrary actions to:
-     - transfer assets
-     - call its own functions
-     - call functions in external contracts
-   - Providing general technical utilities like callback handling and others
-2. **Permissions:** Permissions are an integral part of any DAO and the center of our protocol architecture. The Permissions manager **manages permissions for the DAO** by specifying which addresses have permission to call distinct functions on contracts associated with your DAO. This Permissions manager lives inside the DAO contract.
-3. **Plugins**: Any custom functionality can be added or removed through plugins, allowing you to **fully customize your DAO**. You'll find some base templates of plugins within the `plugins` folder of the _Core Contracts_. Some examples of plugins that DAOs could install are:
-   - Governance (e.g., token voting, one-address one-vote)
-   - Asset management (e.g., ERC-20 or NFT minting, token streaming, DeFi)
-   - Membership (governing budget allowances, access gating, curating a member list)
-
-The following graphic shows an exemplary DAO setup:
-
-![An examplary DAO setup](https://devs.aragon.org/assets/images/dao-plugin.drawio-7086d0911d25218097dae94665b1a7b1.svg)
-
-An examplary DAO setup showing interactions between the three core contract pieces triggered by different user groups: The `DAO` and `PermissionManager` contract in blue and red, respectively, as well as two `Plugin` contracts in green. Bear in mind, the `DAO` and `Permission Manager` components both coexist within the same `DAO` contract. Function calls are visualized as black arrows and require permission checks (red, dashed arrow). In this example, the permission manager determines whether the token voting plugin can execute actions on the DAO, a member can change its settings, or if an DeFi-related plugin is allowed to invest in a certain, external contract.
-
-### Framework Contracts
-
-In contrast, the _Framework Contracts_ are in charge of creating and registering DAOs and plugins. Additionally, these contracts contain the `PluginSetupProcessor` which installs, uninstalls, and updates plugins into DAOs upon request.
-
-- **Factories and Registries**
-  - **The DAO Factory**: In charge of deploying instances of a new DAO based on the parameters given, including which plugins to install and additional metadata the DAO has (like a name, description, etc).
-  - **The DAO Registry**: In charge of registering DAOs into our protocol so plugins can easily access all DAO instances within our protocol. It is also in charge of giving DAOs subdomains for easier access.
-  - **The Plugin Factory**: A `PluginRepo` is the repository of versions for a given plugin. The `PluginRepoFactory` contract creates a `PluginRepo` instance for each plugin, so that plugins can update their versioning without complexity in a semantic way similar to the App Store.
-  - **The Plugin Registry**: In charge of registering the `PluginRepo` addresses into our protocol so that DAOs can access all plugins published in the protocol.
-- **Plugin Setup Processor**: The processor is the manager for plugins. It installs, uninstalls, and upgrades plugins for DAOs based on the instructions provided by the plugin setup.
-
-For a more detailed description of each of these components, please visit our [Developer Portal](https://devs.aragon.org).
-
-### Plugins
-
-Each plugin consists of two key components:
-
-- **The Plugin Logic**: contains the logic for each plugin; the main functionality the plugin extends for the DAO. Can be linked to other helper contracts if needed.
-- **The Plugin Setup**: contains the installation, uninstallation, and upgrade instructions for a plugin into a DAO.
-
-You can find all plugins built by the Aragon team [here](https://github.com/aragon/osx/tree/develop/packages/contracts/src/plugins).
-
-### Connection between OSx, subgraph, and ethers.js packages
-
-The [Aragon OSx contracts](https://github.com/aragon/osx/tree/develop/packages/contracts) emits events that get indexed within our `subgraph`. This `subgraph`, whose [source code can be found here](https://github.com/aragon/osx/tree/develop/packages/subgraph), is what then fuels the [Aragon SDK](https://github.com/aragon/sdk).
-
-The [contract-ethers](https://github.com/aragon/osx/tree/develop/packages/contracts-ethers) package is the NPM package that provides `ethers.js` wrappers to use the [Aragon OSx contracts](https://github.com/aragon/osx/tree/develop/packages/contracts).
-
-## Tests
-
-To run tests, run these commands in the root folder in your terminal:
-
-```bash
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-```
-
-For faster runs of your tests and scripts, consider skipping `ts-node`'s type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment.
-
-For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
+Voting is the primary way to make decision in ClubDAO and DAOs of DAOs. Voting will be gasless and using Snapshot
 
 ## Deployment
+TO FILL IN
 
-To deploy contracts, run these commands in your terminal:
-
-```bash
-npx hardhat run scripts/deploy.ts
-TS_NODE_FILES=true npx ts-node scripts/deploy.ts
-npx eslint '**/*.{js,ts}'
-npx eslint '**/*.{js,ts}' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
-```
-
-You can find more details about [our deployment checklist here](https://github.com/aragon/osx/blob/develop/DEPLOYMENT_CHECKLIST.md).
-
-## Releasing
-
-To release a new version of the NPM packages and the contracts add one of these labels `release:patch`, `release:minor` and `release:major`.
-This triggers the deployment of the contracts to the networks defined under `packages/contracts/networks.json`. Merges to `develop` triggers a release to testnets and merges to `main` releases to the mainnets.
-The labels also indicate how the npm packages will be bumped to the next version:
-
-| Label         | Version bump                                          |
-| ------------- | ----------------------------------------------------- |
-| release:patch | patch bump for `@aragon/osx` and `@aragon/osx-ethers` |
-| release:minor | minor bump for `@aragon/osx` and `@aragon/osx-ethers` |
-| release:major | major bump for `@aragon/osx` and `@aragon/osx-ethers` |
-
-## Pull request commands
-
-Certain actions can be triggered via a command to a pull request. To issue a command just comment on a pull request with one of these commands.
-
-| Command                                      | Description                                                 |
-| -------------------------------------------- | ----------------------------------------------------------- |
-| `/mythx partial (quick \| standard \| deep)` | Scans the changed files for this pull request               |
-| `/mythx full (quick \| standard \| deep)`    | Scans the all files for this pull request                   |
-| `/release (patch \| minor \| major)`         | Adds the proper release label to this pull request          |
-| `/subgraph (patch \| minor \| major)`        | Adds the proper subgraph release label to this pull request |
+## Tech Stack
+TO FILL IN
